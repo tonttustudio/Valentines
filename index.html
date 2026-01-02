@@ -101,24 +101,7 @@ canvas { width: 100%; height: 100%; display: block; }
   <div id="thumbs" class="thumbs">
     <div class="thumb-title">Sydämet</div>
     <div class="thumb"><img src="koristeet/sydan1.png" alt="Sydän 1" /></div>
-    <div class="thumb"><img src="koristeet/sydan2.png" alt="Sydän 2" /></div>
-
-    <div class="thumb-title">Tekstit</div>
-    <div class="thumb"><img src="koristeet/teksti1.png" alt="Love" /></div>
-    <div class="thumb"><img src="koristeet/teksti2.png" alt="Happy" /></div>
-
-    <div class="thumb-title">Kukat</div>
-    <div class="thumb"><img src="koristeet/kukka1.png" alt="Ruusu" /></div>
-    <div class="thumb"><img src="koristeet/kukka2.png" alt="Tulppaani" /></div>
-
-    <div class="thumb-title">Kehykset</div>
-    <div class="thumb"><img src="koristeet/kehys1.png" alt="Reuna 1" /></div>
-    <div class="thumb"><img src="koristeet/kehys2.png" alt="Reuna 2" /></div>
-
-    <div class="thumb-title">Muut</div>
-    <div class="thumb"><img src="koristeet/muu1.png" alt="Tähti" /></div>
-    <div class="thumb"><img src="koristeet/muu2.png" alt="Kimalle" /></div>
-  </div>
+    </div>
 </div>
 
 <script>
@@ -131,6 +114,7 @@ let bgBitmap = null;
 
     let bg = { x:0, y:0, scale:1 }, stickers = [], activeIndex = -1;
     let pointers = new Map(), lastPinchDist = 0, initialScale = 1;
+    let lastAngle = 0, initialRotation = 0; // Uudet muuttujat kääntämiseen
 
     const delBtn = document.createElement('div');
     delBtn.className = 'remove-btn'; delBtn.textContent = '×'; delBtn.style.display = 'none';
@@ -138,6 +122,7 @@ let bgBitmap = null;
 
     function getDistance(p1, p2) { return Math.hypot(p1.clientX - p2.clientX, p1.clientY - p2.clientY); }
     function getMidpoint(p1, p2) { return { x: (p1.clientX + p2.clientX) / 2, y: (p1.clientY + p2.clientY) / 2 }; }
+    function getAngle(p1, p2) { return Math.atan2(p2.clientY - p1.clientY, p2.clientX - p1.clientX); }
 
     canvas.addEventListener('pointerdown', e => {
         canvas.setPointerCapture(e.pointerId);
@@ -146,11 +131,13 @@ let bgBitmap = null;
         if (pointers.size === 1) {
             const px = (e.clientX - r.left) * (1200 / r.width);
             const py = (e.clientY - r.top) * (1200 / r.height);
-            activeIndex = stickers.findIndex(s => Math.abs(s.x - px) < 150*s.scale && Math.abs(s.y - py) < 150*s.scale);
+            activeIndex = stickers.findLastIndex(s => Math.abs(s.x - px) < 150*s.scale && Math.abs(s.y - py) < 150*s.scale);
         } else if (pointers.size === 2) {
             const pts = Array.from(pointers.values());
             lastPinchDist = getDistance(pts[0], pts[1]);
+            lastAngle = getAngle(pts[0], pts[1]);
             initialScale = activeIndex >= 0 ? stickers[activeIndex].scale : bg.scale;
+            initialRotation = activeIndex >= 0 ? (stickers[activeIndex].rotation || 0) : 0;
         }
         draw();
     });
@@ -170,12 +157,16 @@ let bgBitmap = null;
         } else if (pointers.size === 2) {
             const pts = Array.from(pointers.values());
             const currentDist = getDistance(pts[0], pts[1]);
+            const currentAngle = getAngle(pts[0], pts[1]);
             const currentMid = getMidpoint(pts[0], pts[1]);
+            
             const factor = currentDist / lastPinchDist;
             const newScale = initialScale * factor;
+            const angleDiff = currentAngle - lastAngle;
 
             if (activeIndex >= 0) {
                 stickers[activeIndex].scale = newScale;
+                stickers[activeIndex].rotation = initialRotation + angleDiff; // KÄÄNTÖ TÄSSÄ
             } else {
                 const midX = (currentMid.x - r.left) * ratio;
                 const midY = (currentMid.y - r.top) * ratio;
@@ -187,7 +178,7 @@ let bgBitmap = null;
         draw();
     });
 
-    const end = e => { pointers.delete(e.pointerId); if(pointers.size < 2) lastPinchDist = 0; };
+    const end = e => { pointers.delete(e.pointerId); if(pointers.size < 2) { lastPinchDist = 0; lastAngle = 0; } };
     canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
 
     function draw() {
@@ -197,9 +188,13 @@ let bgBitmap = null;
             ctx.drawImage(bgBitmap, 0, 0); ctx.restore();
         }
         stickers.forEach((s, i) => {
-            ctx.save(); ctx.translate(s.x, s.y); ctx.scale(s.scale, s.scale);
+            ctx.save(); 
+            ctx.translate(s.x, s.y); 
+            ctx.rotate(s.rotation || 0); // PIIRTÄMINEN KULMASSA
+            ctx.scale(s.scale, s.scale);
             const sc = Math.min(300/s.img.width, 300/s.img.height);
-            ctx.scale(sc, sc); ctx.drawImage(s.img, -s.img.width/2, -s.img.height/2);
+            ctx.scale(sc, sc); 
+            ctx.drawImage(s.img, -s.img.width/2, -s.img.height/2);
             if(i === activeIndex) { 
                 ctx.strokeStyle = '#ff4d6d'; ctx.lineWidth = 5; 
                 ctx.strokeRect(-s.img.width/2, -s.img.height/2, s.img.width, s.img.height); 
@@ -226,7 +221,7 @@ let bgBitmap = null;
             try {
                 const blob = await heic2any({ blob: f, toType: "image/jpeg", quality: 0.8 });
                 f = blob;
-            } catch (err) { alert("iPhone-kuvan muunnos epäonnistui."); return; }
+            } catch (err) { alert("HEIC muunnos epäonnistui."); return; }
         }
         bgBitmap = await createImageBitmap(f);
         bg.scale = Math.min(1200/bgBitmap.width, 1200/bgBitmap.height);
@@ -237,7 +232,8 @@ let bgBitmap = null;
     document.getElementById('thumbs').onclick = e => {
         if(e.target.tagName === 'IMG') {
             const img = new Image(); img.onload = () => {
-                stickers.push({img, x: 600, y: 600, scale: 1});
+                // Lisätty rotation:0 oletuksena
+                stickers.push({img, x: 600, y: 600, scale: 1, rotation: 0});
                 activeIndex = stickers.length - 1; draw();
             }; img.src = e.target.src;
         }
