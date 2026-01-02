@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<title>SydänStudio – Ystävänpäivä ✨</title>
+<title>SydänStudio ✨</title>
 
 <style>
 :root {
@@ -100,11 +100,24 @@ canvas { width: 100%; height: 100%; display: block; }
 
   <div id="thumbs" class="thumbs">
     <div class="thumb-title">Sydämet</div>
-    <div class="thumb"><img src="koristeet/sydan1.png" alt="Sydän" /></div>
+    <div class="thumb"><img src="koristeet/sydan1.png" alt="Sydän 1" /></div>
+    <div class="thumb"><img src="koristeet/sydan2.png" alt="Sydän 2" /></div>
+
     <div class="thumb-title">Tekstit</div>
-    <div class="thumb"><img src="koristeet/love1.png" alt="Love" /></div>
-    <div class="thumb-title">Kukat ja muut</div>
-    <div class="thumb"><img src="koristeet/kukka1.png" alt="Kukka" /></div>
+    <div class="thumb"><img src="koristeet/teksti1.png" alt="Love" /></div>
+    <div class="thumb"><img src="koristeet/teksti2.png" alt="Happy" /></div>
+
+    <div class="thumb-title">Kukat</div>
+    <div class="thumb"><img src="koristeet/kukka1.png" alt="Ruusu" /></div>
+    <div class="thumb"><img src="koristeet/kukka2.png" alt="Tulppaani" /></div>
+
+    <div class="thumb-title">Kehykset</div>
+    <div class="thumb"><img src="koristeet/kehys1.png" alt="Reuna 1" /></div>
+    <div class="thumb"><img src="koristeet/kehys2.png" alt="Reuna 2" /></div>
+
+    <div class="thumb-title">Muut</div>
+    <div class="thumb"><img src="koristeet/muu1.png" alt="Tähti" /></div>
+    <div class="thumb"><img src="koristeet/muu2.png" alt="Kimalle" /></div>
   </div>
 </div>
 
@@ -207,22 +220,14 @@ let bgBitmap = null;
 
     delBtn.onclick = () => { if(activeIndex >= 0) { stickers.splice(activeIndex, 1); activeIndex = -1; draw(); } };
 
-    // TÄSSÄ ON PÄIVITETTY HEIC-TUKI
     fileInput.onchange = async e => {
         let f = e.target.files[0]; if(!f) return;
-        
-        // Jos tiedosto on HEIC, muunnetaan se
         if (f.name.toLowerCase().endsWith(".heic") || f.type === "image/heic") {
             try {
                 const blob = await heic2any({ blob: f, toType: "image/jpeg", quality: 0.8 });
                 f = blob;
-            } catch (err) {
-                console.error("HEIC muunnos epäonnistui", err);
-                alert("iPhone-kuvan muunnos epäonnistui. Kokeile toista kuvaa.");
-                return;
-            }
+            } catch (err) { alert("iPhone-kuvan muunnos epäonnistui."); return; }
         }
-
         bgBitmap = await createImageBitmap(f);
         bg.scale = Math.min(1200/bgBitmap.width, 1200/bgBitmap.height);
         bg.x = (1200 - bgBitmap.width*bg.scale)/2; bg.y = (1200 - bgBitmap.height*bg.scale)/2;
