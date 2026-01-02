@@ -3,287 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<title>SydänStudio – Lisää tunnelmaa ✨</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+<title>SydänStudio ✨</title>
 <style>
-/* 🎨 YSTÄVÄNPÄIVÄ-VÄRIT */
-:root {
-  --main-pink: #ff4d6d;
-  --bg-color: #fff0f3;
-  --dark-pink: #590d22;
-  --gold-edge: #c9184a;
+:root { --main-pink: #ff4d6d; --bg-color: #fff0f3; --dark-pink: #590d22; }
+body { margin: 0; background: var(--bg-color); font-family: 'Fredoka', sans-serif; touch-action: none; overflow: hidden; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 10px; height: 100vh; display: flex; flex-direction: column; }
+.topblock { background: var(--bg-color); padding-bottom: 10px; flex-shrink: 0; }
+h1 { margin: 0; padding: 10px 0; text-align: center; color: var(--main-pink); font-family: 'Dancing Script', cursive; font-size: 36px; }
+.toolbar { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
+button, label.button { 
+    background: var(--main-pink); color: white; border: none; padding: 8px 16px; 
+    border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 14px;
+    box-shadow: 0 4px 0 #c9184a;
 }
-
-html, body { margin: 0; padding: 0; height: 100%; }
-body {
-  background: var(--bg-color);
-  color: var(--dark-pink);
-  font-family: 'Fredoka', sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-.wrap { max-width: 720px; margin: 0 auto; padding: 16px; position: relative; }
-.topblock { position: sticky; top: 0; z-index: 500; background: var(--bg-color); padding-bottom: 4px; }
-
-h1 {
-  margin: 0; padding: 6px 0 12px;
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  font-size: 42px; color: var(--main-pink);
-  font-family: 'Dancing Script', cursive;
-  text-shadow: 2px 2px 0 rgba(255,255,255,.8);
-}
-
-.toolbar { display: flex; gap: 10px; justify-content: center; margin-bottom: 12px; overflow-x: auto; }
-button, label.button {
-  white-space: nowrap; background: linear-gradient(#ff758f, var(--main-pink));
-  color: #fff; border: 2px solid var(--gold-edge);
-  padding: 10px 18px; border-radius: 24px; font-weight: 500;
-  box-shadow: 0 4px 0 #c9184a, 0 8px 18px rgba(0,0,0,.1);
-  cursor: pointer; font-family: 'Fredoka', sans-serif;
-}
-
 input[type=file] { display: none; }
-
-.preview {
-  width: calc(100% + 32px); margin: 0 -16px 18px;
-  aspect-ratio: 1/1; background: #fff; border-radius: 16px;
-  border: 3px solid var(--main-pink); overflow: hidden;
-  touch-action: none; position: relative;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.1); transform: scale(0.95);
+.preview { 
+    width: 100%; aspect-ratio: 1/1; background: #fff; border-radius: 12px; 
+    border: 3px solid var(--main-pink); position: relative; overflow: hidden; touch-action: none;
 }
-
-.preview-hint {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  color: var(--main-pink); opacity: 0.6; pointer-events: none; text-align: center;
-}
-
 canvas { width: 100%; height: 100%; display: block; }
-.note { text-align: center; color: var(--main-pink); font-size: 13px; margin: 8px 0; }
-
-.thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-.thumb {
-  border-radius: 14px; padding: 6px; background: #fff;
-  border: 1px solid #ffccd5; aspect-ratio: 1/1;
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
+.remove-btn { 
+    position: absolute; background: white; color: var(--main-pink); width: 28px; height: 28px; 
+    border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); transform: translate(-50%, -50%); z-index: 10;
 }
-.thumb img { max-width: 100%; max-height: 100%; cursor: pointer; }
-.thumb-title { grid-column: 1 / -1; color: var(--dark-pink); font-weight: 500; margin: 10px 0 4px; }
-
-.remove-btn {
-  position: absolute; color: #fff; background: var(--main-pink);
-  width: 28px; height: 28px; border-radius: 50%;
-  text-align: center; line-height: 26px; font-weight: 900;
-  z-index: 5; transform: translate(-50%, -50%); box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+.thumbs { 
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding-top: 15px; 
+    overflow-y: auto; flex-grow: 1;
 }
+.thumb { background: white; border: 1px solid #ffccd5; border-radius: 10px; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; }
+.thumb img { max-width: 80%; max-height: 80%; }
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
 <body>
 <div class="wrap">
-  <div class="topblock">
-    <h1>💖 SydänStudio</h1>
-    <div class="toolbar">
-      <label for="file" class="button">Avaa kuva</label>
-      <input id="file" type="file" accept="image/*,image/heic,image/heif,image/webp"/>
-      <button id="save">Tallenna</button>
-      <button id="clear">Tyhjennä</button>
+    <div class="topblock">
+        <h1>💖 SydänStudio</h1>
+        <div class="toolbar">
+            <label for="file" class="button">Avaa kuva</label>
+            <input id="file" type="file" accept="image/*"/>
+            <button id="save">Tallenna</button>
+            <button id="clear">Tyhjennä</button>
+        </div>
+        <div class="preview" id="preview">
+            <canvas id="c" width="1200" height="1200"></canvas>
+        </div>
     </div>
-    <div class="preview" id="preview">
-      <canvas id="c" width="1200" height="1200"></canvas>
-      <div class="preview-hint">💕 Avaa kuva ja sovita se ruutuun</div>
+    <div id="thumbs" class="thumbs">
+        <div class="thumb"><img src="koristeet/sydan1.png" alt="Sydän"></div>
     </div>
-  </div>
-
-  <div class="note">✨ Muokkaa kuvaa ja koristeita kahdella sormella.</div>
-
-  <div id="thumbs" class="thumbs">
-    <div class="thumb-title">Koristeet</div>
-    <div class="thumb"><img src="koristeet/sydan1.png" alt="Sydän" /></div>
-    </div>
-
-  <footer style="text-align:center; padding:40px 0; color:var(--main-pink); opacity:0.8;">
-    💕 Ystävänpäivän iloa! ✨
-  </footer>
 </div>
 
 <script>
-// TÄMÄ ON TÄYSIN ALKUPERÄINEN TOIMINNALLISUUTESI
-let bgBitmap = null;
 (function(){
-    'use strict';
-    const MAX_LONG_EDGE = 3000;
-    const BG_MIN = 0.2, BG_MAX = 6.0;
-    const STICKER_MIN = 0.4, STICKER_MAX = 10.0;
-    const BASE_STICKER = 300;
-
-    const file = document.getElementById('file');
-    const save = document.getElementById('save');
-    const clearBtn = document.getElementById('clear');
-    const canvas = document.getElementById('c');
-    const ctx = canvas.getContext('2d', { alpha:false });
-    const preview = document.getElementById('preview');
-    const previewHint = document.querySelector('.preview-hint');
-
-    const back = document.createElement('canvas');
-    back.width = 1200; back.height = 1200;
-    const bctx = back.getContext('2d', {alpha:false});
-
-    let bg = { x:0, y:0, scale:1 };
-    let bgLocked = false;
-    let stickers = [];
-    let activeIndex = -1;
-    let needsRedraw = true;
-    let pointers = new Map();
-    let draggingBG = false;
-    let stickerGesture = null;
-
+    const canvas = document.getElementById('c'), ctx = canvas.getContext('2d', {alpha:false});
     const delBtn = document.createElement('div');
-    delBtn.className = 'remove-btn';
-    delBtn.textContent = '×';
-    delBtn.style.display = 'none';
-    preview.appendChild(delBtn);
+    delBtn.className = 'remove-btn'; delBtn.textContent = '×'; delBtn.style.display = 'none';
+    document.getElementById('preview').appendChild(delBtn);
 
-    // KAIKKI ELE-HALLINTA PALAUTETTU TÄHÄN:
-    canvas.addEventListener('pointerdown', (e) => {
-        canvas.setPointerCapture(e.pointerId);
-        pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
-        const r = canvas.getBoundingClientRect();
-        const px = (e.clientX - r.left) * (canvas.width / r.width);
-        const py = (e.clientY - r.top) * (canvas.height / r.height);
+    let bgBitmap = null, bg = {x:0, y:0, scale:1}, stickers = [], activeIndex = -1;
+    let pointers = new Map(), lastDist = 0, lastScale = 1, dragging = false;
 
-        let found = -1;
-        for(let i=stickers.length-1; i>=0; i--){
-            const s = stickers[i];
-            const box = 150 * s.scale;
-            if(Math.abs(px - s.x) < box && Math.abs(py - s.y) < box){ found = i; break; }
-        }
-        activeIndex = found;
-        if(found === -1 && !bgLocked) draggingBG = true;
-        needsRedraw = true;
-    });
+    function getDist(pts) {
+        const [p1, p2] = Array.from(pts.values());
+        return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+    }
 
-    canvas.addEventListener('pointermove', (e) => {
-        if(!pointers.has(e.pointerId)) return;
-        const p = pointers.get(e.pointerId);
-        const dx = e.clientX - p.x;
-        const dy = e.clientY - p.y;
-        p.x = e.clientX; p.y = e.clientY;
-
-        const r = canvas.getBoundingClientRect();
-        const ratio = canvas.width / r.width;
-
-        if(activeIndex >= 0){
-            const s = stickers[activeIndex];
-            if(pointers.size === 1){
-                s.x += dx * ratio; s.y += dy * ratio;
-            } else if(pointers.size === 2){
-                const pts = Array.from(pointers.values());
-                const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-                if(!stickerGesture) stickerGesture = { d, s: s.scale };
-                s.scale = stickerGesture.s * (d / stickerGesture.d);
-            }
-        } else if(draggingBG){
-            bg.x += dx * ratio; bg.y += dy * ratio;
-        } else if(pointers.size === 2 && !bgLocked){
-            // TAUSTAKUVAN ZOOM (Pinch-to-zoom)
-            const pts = Array.from(pointers.values());
-            const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-            if(!bg._p) bg._p = { d, s: bg.scale };
-            bg.scale = Math.max(BG_MIN, Math.min(BG_MAX, bg._p.s * (d / bg._p.d)));
-        }
-        needsRedraw = true;
-    });
-
-    const end = (e) => { 
-        pointers.delete(e.pointerId); 
-        if(pointers.size === 0){ draggingBG = false; bg._p = null; stickerGesture = null; }
-    };
-    canvas.addEventListener('pointerup', end);
-    canvas.addEventListener('pointercancel', end);
-
-    // RULLA-ZOOM
-    canvas.addEventListener('wheel', (e) => {
-        if(bgLocked) return;
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? 0.9 : 1.1;
-        bg.scale = Math.max(BG_MIN, Math.min(BG_MAX, bg.scale * delta));
-        needsRedraw = true;
-    }, {passive:false});
-
-    // PIIRTO-LOGIIKKA
     function draw() {
-        bctx.fillStyle = '#ffffff';
-        bctx.fillRect(0,0,1200,1200);
-        if(bgBitmap){
-            bctx.save();
-            bctx.translate(bg.x, bg.y);
-            bctx.scale(bg.scale, bg.scale);
-            bctx.drawImage(bgBitmap, 0, 0);
-            bctx.restore();
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,1200,1200);
+        if(bgBitmap) {
+            ctx.save(); ctx.translate(bg.x, bg.y); ctx.scale(bg.scale, bg.scale);
+            ctx.drawImage(bgBitmap, 0, 0); ctx.restore();
         }
-        stickers.forEach(st => {
-            bctx.save();
-            bctx.translate(st.x, st.y);
-            bctx.rotate(st.rot || 0);
-            bctx.scale(st.scale, st.scale);
-            const sc = Math.min(BASE_STICKER/st.bitmap.width, BASE_STICKER/st.bitmap.height);
-            bctx.scale(sc, sc);
-            bctx.drawImage(st.bitmap, -st.bitmap.width/2, -st.bitmap.height/2);
-            bctx.restore();
+        stickers.forEach((s, i) => {
+            ctx.save(); ctx.translate(s.x, s.y); ctx.scale(s.scale, s.scale);
+            const r = Math.min(300/s.img.width, 300/s.img.height);
+            ctx.scale(r, r); ctx.drawImage(s.img, -s.img.width/2, -s.img.height/2);
+            if(i === activeIndex) {
+                ctx.strokeStyle = '#ff4d6d'; ctx.lineWidth = 5;
+                ctx.strokeRect(-s.img.width/2, -s.img.height/2, s.img.width, s.img.height);
+            }
+            ctx.restore();
         });
-        ctx.drawImage(back, 0, 0);
-        if(activeIndex >= 0) { /* Piirrä poistoruksi oikeaan kohtaan */ 
-            const s = stickers[activeIndex];
-            const r = canvas.getBoundingClientRect();
+        updateDelBtn();
+    }
+
+    function updateDelBtn() {
+        if(activeIndex >= 0) {
+            const s = stickers[activeIndex], r = canvas.getBoundingClientRect();
             delBtn.style.display = 'block';
             delBtn.style.left = (s.x * (r.width/1200)) + 'px';
             delBtn.style.top = (s.y * (r.height/1200)) + 'px';
         } else { delBtn.style.display = 'none'; }
     }
 
-    requestAnimationFrame(function loop(){ if(needsRedraw){ draw(); needsRedraw=false; } requestAnimationFrame(loop); });
-
-    // KUVAN AVAUS
-    file.addEventListener('change', async (e) => {
-        const f = e.target.files[0]; if(!f) return;
-        const bmp = await createImageBitmap(f);
-        bgBitmap = bmp;
-        bg.scale = Math.min(1200/bmp.width, 1200/bmp.height);
-        bg.x = (1200 - bmp.width*bg.scale)/2;
-        bg.y = (1200 - bmp.height*bg.scale)/2;
-        previewHint.style.display = 'none';
-        needsRedraw = true;
-    });
-
-    document.getElementById('thumbs').addEventListener('click', (e) => {
-        if(e.target.tagName === 'IMG'){
-            const img = new Image();
-            img.onload = () => {
-                const off = document.createElement('canvas');
-                off.width = img.width; off.height = img.height;
-                off.getContext('2d').drawImage(img,0,0);
-                stickers.push({bitmap: off, x: 600, y: 600, scale: 1});
-                activeIndex = stickers.length-1;
-                bgLocked = true;
-                needsRedraw = true;
-            };
-            img.src = e.target.src;
+    canvas.addEventListener('pointerdown', e => {
+        canvas.setPointerCapture(e.pointerId);
+        pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
+        if(pointers.size === 1) {
+            const r = canvas.getBoundingClientRect(), px = (e.clientX - r.left)*(1200/r.width), py = (e.clientY - r.top)*(1200/r.height);
+            activeIndex = stickers.findIndex(s => Math.abs(s.x - px) < 150*s.scale && Math.abs(s.y - py) < 150*s.scale);
+            dragging = true;
+        } else if(pointers.size === 2) {
+            lastDist = getDist(pointers);
+            lastScale = activeIndex >= 0 ? stickers[activeIndex].scale : bg.scale;
         }
+        draw();
     });
 
-    save.addEventListener('click', () => {
-        const a = document.createElement('a');
-        a.download = 'ystavanpaiva.png';
-        a.href = canvas.toDataURL('image/png');
-        a.click();
+    canvas.addEventListener('pointermove', e => {
+        if(!pointers.has(e.pointerId)) return;
+        const p = pointers.get(e.pointerId);
+        const dx = (e.clientX - p.x) * (1200/canvas.getBoundingClientRect().width);
+        const dy = (e.clientY - p.y) * (1200/canvas.getBoundingClientRect().height);
+        p.x = e.clientX; p.y = e.clientY;
+
+        if(pointers.size === 1 && dragging) {
+            if(activeIndex >= 0) { stickers[activeIndex].x += dx; stickers[activeIndex].y += dy; }
+            else { bg.x += dx; bg.y += dy; }
+        } else if(pointers.size === 2) {
+            const newDist = getDist(pointers);
+            const factor = newDist / lastDist;
+            if(activeIndex >= 0) stickers[activeIndex].scale = lastScale * factor;
+            else bg.scale = lastScale * factor;
+        }
+        draw();
     });
 
-    clearBtn.addEventListener('click', () => { location.reload(); });
+    const end = e => { pointers.delete(e.pointerId); if(pointers.size < 2) lastDist = 0; dragging = false; };
+    canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+
+    document.getElementById('file').onchange = async e => {
+        const f = e.target.files[0]; if(!f) return;
+        bgBitmap = await createImageBitmap(f);
+        bg.scale = Math.min(1200/bgBitmap.width, 1200/bgBitmap.height);
+        bg.x = (1200 - bgBitmap.width*bg.scale)/2; bg.y = (1200 - bgBitmap.height*bg.scale)/2;
+        draw();
+    };
+
+    document.getElementById('thumbs').onclick = e => {
+        if(e.target.tagName === 'IMG') {
+            const img = new Image(); img.onload = () => {
+                stickers.push({img, x: 600, y: 600, scale: 1});
+                activeIndex = stickers.length - 1; draw();
+            }; img.src = e.target.src;
+        }
+    };
+
+    delBtn.onclick = () => { if(activeIndex >= 0) { stickers.splice(activeIndex, 1); activeIndex = -1; draw(); } };
+    document.getElementById('save').onclick = () => { const a = document.createElement('a'); a.download = 'kuva.png'; a.href = canvas.toDataURL(); a.click(); };
+    document.getElementById('clear').onclick = () => { location.reload(); };
+
+    draw();
 })();
 </script>
 </body>
